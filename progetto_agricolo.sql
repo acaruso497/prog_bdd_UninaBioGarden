@@ -1,57 +1,51 @@
-
--- ==============================
--- SCHEMA: Progetto Agricolo
--- ==============================
-
 -- TABELLE BASE
 CREATE TABLE Proprietario (
   Codice_Fiscale VARCHAR(16) PRIMARY KEY,
   nome VARCHAR(50),
   cognome VARCHAR(50),
-  email VARCHAR(100)
+  username VARCHAR(100)
 );
 
 CREATE TABLE Coltivatore (
   Codice_Fiscale VARCHAR(16) PRIMARY KEY,
   nome VARCHAR(50),
   cognome VARCHAR(50),
-  email VARCHAR(100),
-  esperienza TEXT
+  username VARCHAR(100),
+  esperienza VARCHAR(100)
 );
 
 CREATE TABLE Progetto_Coltivazione (
-  ID_Progetto SERIAL PRIMARY KEY,
+  ID_Progetto INT PRIMARY KEY,
   stima_raccolto NUMERIC,
   data_inizio DATE,
   data_fine DATE
 );
 
 CREATE TABLE Coltura (
-  ID_Coltura SERIAL PRIMARY KEY,
+  ID_Coltura INT PRIMARY KEY,
   varieta VARCHAR(50),
   tipo VARCHAR(50),
-  tempi_maturazione INTERVAL,
-  frequenza_irrigazione VARCHAR(50),
-  periodo_semina VARCHAR(50)
+  tempi_maturazione INT,
+  frequenza_irrigazione INT,
+  periodo_semina DATE
 );
 
 CREATE TABLE Lotto (
-  ID_Lotto SERIAL PRIMARY KEY,
+  ID_Lotto INT PRIMARY KEY,
   metri_quadri NUMERIC,
   tipo_terreno VARCHAR(50),
-  posizione VARCHAR(100),
-  coordinate VARCHAR(100),
+  posizione INT,
   costo_terreno NUMERIC,
   Codice_FiscalePr VARCHAR(16),
   FOREIGN KEY (Codice_FiscalePr) REFERENCES Proprietario(Codice_Fiscale)
 );
 
 CREATE TABLE Attivita (
-  ID_Attivita SERIAL PRIMARY KEY,
+  ID_Attivita INT PRIMARY KEY,
   giorno_inizio DATE,
   giorno_fine DATE,
   orario_inizio TIME,
-  giorno_lavoro TEXT,
+  giorno_lavoro DATE,
   Codice_FiscaleCol VARCHAR(16),
   ID_Lotto INT,
   FOREIGN KEY (Codice_FiscaleCol) REFERENCES Coltivatore(Codice_Fiscale),
@@ -59,15 +53,15 @@ CREATE TABLE Attivita (
 );
 
 CREATE TABLE Semina (
-  ID_Semina SERIAL PRIMARY KEY,
+  ID_Semina INT PRIMARY KEY,
   profondità NUMERIC,
-  tipo_seminazione VARCHAR(50),
+  tipo_semina VARCHAR(50),
   ID_Attivita INT,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
 
 CREATE TABLE Irrigazione (
-  ID_Irrigazione SERIAL PRIMARY KEY,
+  ID_Irrigazione INT PRIMARY KEY,
   tipo_irrigazione VARCHAR(50),
   ID_Attivita INT,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
@@ -81,10 +75,10 @@ CREATE TABLE Raccolta (
 );
 
 CREATE TABLE Notifica (
-  ID_Notifica SERIAL PRIMARY KEY,
-  Attivita_programmate TEXT,
-  Errori TEXT,
-  Anomalie TEXT,
+  ID_Notifica INT PRIMARY KEY,
+  Attivita_programmate VARCHAR(200),
+  Errori VARCHAR(200),
+  Anomalie VARCHAR(200),
   ID_Attivita INT,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
