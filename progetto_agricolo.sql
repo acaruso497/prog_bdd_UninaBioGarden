@@ -1,87 +1,147 @@
 -- TABELLE BASE
 CREATE TABLE Proprietario (
   Codice_Fiscale VARCHAR(16) PRIMARY KEY,
-  nome VARCHAR(50),
-  cognome VARCHAR(50),
-  username VARCHAR(100)
+  nome     VARCHAR(50)  NOT NULL,
+  cognome  VARCHAR(50)  NOT NULL,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  CONSTRAINT chk_valori_distinti
+    CHECK (
+      nome    <> cognome
+      AND nome    <> username
+      AND cognome <> username
+    )
 );
 
 CREATE TABLE Coltivatore (
   Codice_Fiscale VARCHAR(16) PRIMARY KEY,
-  nome VARCHAR(50),
-  cognome VARCHAR(50),
-  username VARCHAR(100),
-  esperienza VARCHAR(100)
+  nome      VARCHAR(50)  NOT NULL,
+  cognome   VARCHAR(50)  NOT NULL,
+  username  VARCHAR(100) NOT NULL UNIQUE,
+  esperienza VARCHAR(100) NOT NULL
+    CHECK (esperienza IN (
+      'principiante',
+      'intermedio',
+      'professionista'
+    )),
+  CONSTRAINT chk_valori_distinti_coltivatore
+    CHECK (
+      nome    <> cognome
+      AND nome    <> username
+      AND cognome <> username
+    )
 );
 
 CREATE TABLE Progetto_Coltivazione (
-  ID_Progetto INT PRIMARY KEY,
-  stima_raccolto NUMERIC,
-  data_inizio DATE,
-  data_fine DATE
+  ID_Progetto     INT      PRIMARY KEY,
+  stima_raccolto   NUMERIC,
+  data_inizio      DATE     NOT NULL,
+  data_fine        DATE     NOT NULL,
+  CONSTRAINT chk_intervallo_date
+    CHECK (data_fine >= data_inizio)
 );
 
 CREATE TABLE Coltura (
-  ID_Coltura INT PRIMARY KEY,
-  varieta VARCHAR(50),
-  tipo VARCHAR(50),
-  tempi_maturazione INT,
+  ID_Coltura            INT PRIMARY KEY,
+  varietà               VARCHAR(50),
+  tipo                  VARCHAR(50),
+  tempi_maturazione     INT,
   frequenza_irrigazione INT,
-  periodo_semina DATE
+  periodo_semina        DATE NOT NULL,
+  CONSTRAINT chk_mese_semina
+    CHECK (
+      EXTRACT(MONTH FROM periodo_semina) BETWEEN 2 AND 7
+    )
 );
 
 CREATE TABLE Lotto (
-  ID_Lotto INT PRIMARY KEY,
-  metri_quadri NUMERIC,
-  tipo_terreno VARCHAR(50),
-  posizione INT,
-  costo_terreno NUMERIC,
+  ID_Lotto       INT        PRIMARY KEY,
+  metri_quadri   NUMERIC    NOT NULL
+                   CHECK (metri_quadri = 500),
+  tipo_terreno   VARCHAR(50),
+  posizione      INT        NOT NULL
+                   CHECK (posizione BETWEEN 1 AND 200),
+  costo_terreno  NUMERIC    NOT NULL
+                   CHECK (costo_terreno = 300),
   Codice_FiscalePr VARCHAR(16),
+  CONSTRAINT uq_posizione UNIQUE (posizione),
   FOREIGN KEY (Codice_FiscalePr) REFERENCES Proprietario(Codice_Fiscale)
 );
 
-CREATE TABLE Attivita (
-  ID_Attivita INT PRIMARY KEY,
-  giorno_inizio DATE,
-  giorno_fine DATE,
-  orario_inizio TIME,
-  giorno_lavoro DATE,
+
+CREATE TABLE Attività (
+  ID_Attività     INT     PRIMARY KEY,
+  giorno_inizio   DATE    NOT NULL,
+  giorno_fine     DATE    NOT NULL,
+  orario_inizio   TIME    NOT NULL,
+  giorno_lavoro   DATE    NOT NULL,
+
+  CONSTRAINT chk_coerenza_date
+    CHECK (giorno_inizio <= giorno_fine),
+
+  CONSTRAINT chk_ord_giorni_lavoro
+    CHECK (giorno_lavoro BETWEEN giorno_inizio AND giorno_fine),
+
   Codice_FiscaleCol VARCHAR(16),
-  ID_Lotto INT,
-  FOREIGN KEY (Codice_FiscaleCol) REFERENCES Coltivatore(Codice_Fiscale),
-  FOREIGN KEY (ID_Lotto) REFERENCES Lotto(ID_Lotto)
+  ID_Lotto         INT,
+
+  FOREIGN KEY (Codice_FiscaleCol)
+    REFERENCES Coltivatore(Codice_Fiscale),
+  FOREIGN KEY (ID_Lotto)
+    REFERENCES Lotto(ID_Lotto)
 );
 
+
 CREATE TABLE Semina (
-  ID_Semina INT PRIMARY KEY,
-  profondità NUMERIC,
-  tipo_semina VARCHAR(50),
-  ID_Attivita INT,
-  FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
+  ID_Semina    INT       PRIMARY KEY,
+  profondita   NUMERIC   NOT NULL
+                CONSTRAINT chk_profondita_std
+                  CHECK (profondita = 10),
+  tipo_semina  VARCHAR(50),
+  ID_Attivita  INT       NOT NULL,
+  FOREIGN KEY (ID_Attivita) REFERENCES Attività(ID_Attività)
 );
 
 CREATE TABLE Irrigazione (
-  ID_Irrigazione INT PRIMARY KEY,
-  tipo_irrigazione VARCHAR(50),
-  ID_Attivita INT,
+  ID_Irrigazione   INT        PRIMARY KEY,
+  tipo_irrigazione VARCHAR(50) NOT NULL
+    CONSTRAINT chk_tipo_irrigazione
+      CHECK (
+        tipo_irrigazione IN (
+          'a goccia',
+          'a pioggia',
+          'per scorrimento'
+        )
+      ),
+  ID_Attivita      INT        NOT NULL,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
+
 
 CREATE TABLE Raccolta (
-  ID_Raccolta SERIAL PRIMARY KEY,
-  raccolto_effettivo NUMERIC,
-  ID_Attivita INT,
+  ID_Raccolta        SERIAL PRIMARY KEY,
+  raccolto_effettivo NUMERIC   NOT NULL
+                      CONSTRAINT chk_raccolto_non_negativo
+                        CHECK (raccolto_effettivo >= 0),
+  ID_Attivita        INT       NOT NULL,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
 
+
 CREATE TABLE Notifica (
-  ID_Notifica INT PRIMARY KEY,
-  Attivita_programmate VARCHAR(200),
-  Errori VARCHAR(200),
-  Anomalie VARCHAR(200),
-  ID_Attivita INT,
+  ID_Notifica          INT PRIMARY KEY,
+  Attivita_programmate VARCHAR(200) NOT NULL,
+  Errori               VARCHAR(200) NOT NULL,
+  Anomalie             VARCHAR(200) NOT NULL,
+  CONSTRAINT chk_enti_lista
+    CHECK (
+      NULLIF(trim(Attivita_programmate), '') IS NOT NULL
+      OR NULLIF(trim(Errori), '') IS NOT NULL
+      OR NULLIF(trim(Anomalie), '') IS NOT NULL
+    ),
+  ID_Attivita          INT NOT NULL,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
+
 
 -- TABELLE PONTE
 CREATE TABLE Invia (
