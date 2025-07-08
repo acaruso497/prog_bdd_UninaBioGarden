@@ -72,7 +72,7 @@ CREATE TABLE Attività (
   ID_Attività     INT     PRIMARY KEY,
   giorno_inizio   DATE    NOT NULL,
   giorno_fine     DATE    NOT NULL,
-  orario_inizio   TIME    NOT NULL,
+ 
   
   CONSTRAINT chk_coerenza_date
     CHECK (giorno_inizio <= giorno_fine),
