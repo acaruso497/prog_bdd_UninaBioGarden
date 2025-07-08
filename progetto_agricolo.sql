@@ -17,7 +17,7 @@ CREATE TABLE Coltivatore (
   nome      VARCHAR(50)  NOT NULL,
   cognome   VARCHAR(50)  NOT NULL,
   username  VARCHAR(100) NOT NULL UNIQUE,
-  esperienza VARCHAR(100) NOT NULL
+  esperienza VARCHAR(100) NOT NULL DEFAULT 'principiante'
     CHECK (esperienza IN (
       'principiante',
       'intermedio',
