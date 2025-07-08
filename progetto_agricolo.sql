@@ -73,8 +73,7 @@ CREATE TABLE Attività (
   giorno_inizio   DATE    NOT NULL,
   giorno_fine     DATE    NOT NULL,
   orario_inizio   TIME    NOT NULL,
-  giorno_lavoro   DATE    NOT NULL,
-
+  
   CONSTRAINT chk_coerenza_date
     CHECK (giorno_inizio <= giorno_fine),
 
