@@ -1,4 +1,4 @@
--- TABELLE BASE
+---------------TABELLE BASE------------------
 CREATE TABLE Proprietario (
   Codice_Fiscale VARCHAR(16) PRIMARY KEY,
   nome     VARCHAR(50)  NOT NULL,
@@ -89,48 +89,6 @@ CREATE TABLE Attività (
     REFERENCES Lotto(ID_Lotto)
 );
 
--- ESPERIENZA DEL COLTIVATORE
--- FUNZIONE
-CREATE OR REPLACE FUNCTION trg_promuovi_experience()
-  RETURNS trigger AS $$
-DECLARE
-  cnt     INT;
-  old_exp TEXT;
-BEGIN
-  -- Conta tutte le attività del coltivatore (inclusa la nuova)
-  SELECT COUNT(*) INTO cnt
-    FROM Attività
-   WHERE Codice_FiscaleCol = NEW.Codice_FiscaleCol;
-
-  IF cnt % 5 = 0 THEN
-    -- Legge il livello corrente
-    SELECT esperienza INTO old_exp
-      FROM Coltivatore
-     WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
-
-    -- Promuove al livello successivo a seconda del livello corrente
-    IF old_exp = 'principiante' THEN
-      UPDATE Coltivatore
-         SET esperienza = 'intermedio'
-       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
-    ELSIF old_exp = 'intermedio' THEN
-      UPDATE Coltivatore
-         SET esperienza = 'professionista'
-       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
-    END IF;
-  END IF;
-
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
--- TRIGGER
-CREATE TRIGGER trg_after_attivita_insert
-  AFTER INSERT ON Attività
-  FOR EACH ROW
-  EXECUTE FUNCTION trg_promuovi_experience();
---
-
 CREATE TABLE Semina (
   ID_Semina    INT       PRIMARY KEY,
   profondita   NUMERIC   NOT NULL
@@ -181,9 +139,9 @@ CREATE TABLE Notifica (
   ID_Attivita          INT NOT NULL,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
+---------------TABELLE BASE------------------
 
-
--- TABELLE PONTE
+----------------------TABELLE PONTE-----------------------------------
 CREATE TABLE Invia (
   ID_Notifica INT,
   Codice_FiscalePr VARCHAR(16),
@@ -207,3 +165,50 @@ CREATE TABLE Ospita_Lotto_Progetto (
   FOREIGN KEY (ID_Lotto) REFERENCES Lotto(ID_Lotto),
   FOREIGN KEY (ID_Progetto) REFERENCES Progetto_Coltivazione(ID_Progetto)
 );
+----------------------TABELLE PONTE-----------------------------------
+
+
+-------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
+
+CREATE OR REPLACE FUNCTION trg_promuovi_experience()
+  RETURNS trigger AS $$
+DECLARE
+  cnt     INT;
+  old_exp TEXT;
+BEGIN
+  -- Conta tutte le attività del coltivatore (inclusa la nuova)
+  SELECT COUNT(*) INTO cnt
+    FROM Attività
+   WHERE Codice_FiscaleCol = NEW.Codice_FiscaleCol;
+
+  IF cnt % 5 = 0 THEN
+    -- Legge il livello corrente
+    SELECT esperienza INTO old_exp
+      FROM Coltivatore
+     WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+
+    -- Promuove al livello successivo a seconda del livello corrente
+    IF old_exp = 'principiante' THEN
+      UPDATE Coltivatore
+         SET esperienza = 'intermedio'
+       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+    ELSIF old_exp = 'intermedio' THEN
+      UPDATE Coltivatore
+         SET esperienza = 'professionista'
+       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+    END IF;
+  END IF;
+
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+-------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
+
+
+-------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
+CREATE TRIGGER trg_after_attivita_insert
+  AFTER INSERT ON Attività
+  FOR EACH ROW
+  EXECUTE FUNCTION trg_promuovi_experience();
+-------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
+
