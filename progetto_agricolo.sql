@@ -77,9 +77,6 @@ CREATE TABLE Attività (
   CONSTRAINT chk_coerenza_date
     CHECK (giorno_inizio <= giorno_fine),
 
-  CONSTRAINT chk_ord_giorni_lavoro
-    CHECK (giorno_lavoro BETWEEN giorno_inizio AND giorno_fine),
-
   Codice_FiscaleCol VARCHAR(16),
   ID_Lotto         INT,
 
@@ -204,11 +201,244 @@ END;
 $$ LANGUAGE plpgsql;
 -------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
 
-
 -------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
 CREATE TRIGGER trg_after_attivita_insert
   AFTER INSERT ON Attività
   FOR EACH ROW
   EXECUTE FUNCTION trg_promuovi_experience();
 -------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
+
+
+---------------------FUNZIONE id_Progetto_Coltivazione------------------------------
+CREATE OR REPLACE FUNCTION id_Progetto_Coltivazione()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Progetto) INTO ID_var FROM Progetto_Coltivazione;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+     END IF;
+
+   	NEW.ID_Progetto :=ID_var+1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Progetto_Coltivazione------------------------------
+
+---------------------TRIGGER Progetto_Coltivazione------------------------------
+Trigger per Progetto_Coltivazione
+
+CREATE TRIGGER trg_Progetto_Coltivazione_id
+BEFORE INSERT ON Progetto_Coltivazione
+FOR EACH ROW
+EXECUTE FUNCTION id_Progetto_Coltivazione();
+---------------------TRIGGER Progetto_Coltivazione------------------------------
+
+
+---------------------FUNZIONE id_Coltura------------------------------
+CREATE OR REPLACE FUNCTION id_Coltura()
+RETURNS TRIGGER AS $$ 
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Coltura) INTO ID_var FROM Coltura;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Coltura := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Coltura------------------------------
+
+---------------------TRIGGER Coltura------------------------------
+CREATE TRIGGER trg_Coltura_id
+BEFORE INSERT ON Coltura
+FOR EACH ROW
+EXECUTE FUNCTION id_Coltura();
+---------------------TRIGGER Coltura------------------------------
+
+
+---------------------FUNZIONE id_Lotto------------------------------
+CREATE OR REPLACE FUNCTION id_Lotto()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Lotto) INTO ID_var FROM Lotto;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Lotto := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Lotto------------------------------
+
+---------------------TRIGGER Lotto------------------------------
+CREATE TRIGGER trg_Lotto_id
+BEFORE INSERT ON Lotto
+FOR EACH ROW
+EXECUTE FUNCTION id_Lotto();
+---------------------TRIGGER Lotto------------------------------
+
+
+---------------------FUNZIONE id_Attività------------------------------
+CREATE OR REPLACE FUNCTION id_Attività()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Attività) INTO ID_var FROM Attività;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Attività := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Attività------------------------------
+
+---------------------TRIGGER Attività------------------------------
+CREATE TRIGGER trg_Attività_id
+BEFORE INSERT ON Attività
+FOR EACH ROW
+EXECUTE FUNCTION id_Attività();
+---------------------TRIGGER Attività------------------------------
+
+
+---------------------FUNZIONE id_Semina------------------------------
+CREATE OR REPLACE FUNCTION id_Semina()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Semina) INTO ID_var FROM Semina;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Semina := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Semina------------------------------
+
+---------------------TRIGGER Semina------------------------------
+CREATE TRIGGER trg_Semina_id
+BEFORE INSERT ON Semina
+FOR EACH ROW
+EXECUTE FUNCTION id_Semina();
+---------------------TRIGGER Semina------------------------------
+
+
+---------------------FUNZIONE id_Irrigazione------------------------------
+CREATE OR REPLACE FUNCTION id_Irrigazione()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Irrigazione) INTO ID_var FROM Irrigazione;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Irrigazione := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Irrigazione------------------------------
+
+---------------------TRIGGER Irrigazione------------------------------
+CREATE TRIGGER trg_Irrigazione_id
+BEFORE INSERT ON Irrigazione
+FOR EACH ROW
+EXECUTE FUNCTION id_Irrigazione();
+---------------------TRIGGER Irrigazione------------------------------
+
+
+---------------------FUNZIONE id_Raccolta------------------------------
+CREATE OR REPLACE FUNCTION id_Raccolta()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Raccolta) INTO ID_var FROM Raccolta;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Raccolta := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Raccolta------------------------------
+
+---------------------TRIGGER Raccolta------------------------------
+CREATE TRIGGER trg_Raccolta_id
+BEFORE INSERT ON Raccolta
+FOR EACH ROW
+EXECUTE FUNCTION id_Raccolta();
+---------------------TRIGGER Raccolta------------------------------
+
+
+---------------------FUNZIONE id_Notifica------------------------------
+CREATE OR REPLACE FUNCTION id_Notifica()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Notifica) INTO ID_var FROM Notifica;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Notifica := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Notifica------------------------------
+
+---------------------TRIGGER Notifica------------------------------
+CREATE TRIGGER trg_Notifica_id
+BEFORE INSERT ON Notifica
+FOR EACH ROW
+EXECUTE FUNCTION id_Notifica();
+---------------------TRIGGER Notifica------------------------------
 
