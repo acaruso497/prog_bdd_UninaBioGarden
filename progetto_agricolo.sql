@@ -151,7 +151,7 @@ INSERT INTO Coltivatore (Codice_Fiscale, nome, cognome, username) VALUES
   ('FRLRMN90A01L736X', 'Armando',  'Fiorillo', 'arfior'),
   ('CRSNTN99C20L378W', 'Antonio',  'Caruso',   'antcar');
 
--- Popolamento Progetto_Coltivazione (ID auto con trigger)
+-- Popolamento Progetto_Coltivazione 
 INSERT INTO Progetto_Coltivazione (stima_raccolto, data_inizio, data_fine)
 VALUES 
   (1200, '2025-04-01', '2025-07-01'),
