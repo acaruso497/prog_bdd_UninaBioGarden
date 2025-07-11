@@ -1,4 +1,4 @@
--- TABELLE BASE
+---------------TABELLE BASE------------------
 CREATE TABLE Proprietario (
   Codice_Fiscale VARCHAR(16) PRIMARY KEY,
   nome     VARCHAR(50)  NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE Coltivatore (
   nome      VARCHAR(50)  NOT NULL,
   cognome   VARCHAR(50)  NOT NULL,
   username  VARCHAR(100) NOT NULL UNIQUE,
-  esperienza VARCHAR(100) NOT NULL
+  esperienza VARCHAR(100) NOT NULL DEFAULT 'principiante'
     CHECK (esperienza IN (
       'principiante',
       'intermedio',
@@ -68,18 +68,14 @@ CREATE TABLE Lotto (
 );
 
 
-CREATE TABLE Attività (
-  ID_Attività     INT     PRIMARY KEY,
+CREATE TABLE Attivita (
+  ID_Attivita     INT     PRIMARY KEY,
   giorno_inizio   DATE    NOT NULL,
   giorno_fine     DATE    NOT NULL,
-  orario_inizio   TIME    NOT NULL,
-  giorno_lavoro   DATE    NOT NULL,
-
+ 
+  
   CONSTRAINT chk_coerenza_date
     CHECK (giorno_inizio <= giorno_fine),
-
-  CONSTRAINT chk_ord_giorni_lavoro
-    CHECK (giorno_lavoro BETWEEN giorno_inizio AND giorno_fine),
 
   Codice_FiscaleCol VARCHAR(16),
   ID_Lotto         INT,
@@ -90,7 +86,6 @@ CREATE TABLE Attività (
     REFERENCES Lotto(ID_Lotto)
 );
 
-
 CREATE TABLE Semina (
   ID_Semina    INT       PRIMARY KEY,
   profondita   NUMERIC   NOT NULL
@@ -98,7 +93,7 @@ CREATE TABLE Semina (
                   CHECK (profondita = 10),
   tipo_semina  VARCHAR(50),
   ID_Attivita  INT       NOT NULL,
-  FOREIGN KEY (ID_Attivita) REFERENCES Attività(ID_Attività)
+  FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
 
 CREATE TABLE Irrigazione (
@@ -141,9 +136,73 @@ CREATE TABLE Notifica (
   ID_Attivita          INT NOT NULL,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
+---------------TABELLE BASE------------------
 
+---------------------POPOLAMENTO TABELLE BASE------------------------------
 
--- TABELLE PONTE
+-- Popolamento Proprietario
+INSERT INTO Proprietario (Codice_Fiscale, nome, cognome, username) VALUES 
+  ('SGNMRA88A41F205X', 'Mara',    'Sangiovanni', 'marsan'),
+  ('DMNSRG85T12C351Y', 'Sergio',  'Di Martino',  'serdim');
+
+-- Popolamento Coltivatore (esperienza = default 'principiante')
+INSERT INTO Coltivatore (Codice_Fiscale, nome, cognome, username) VALUES
+  ('GRCNCL92P10F839Z', 'Nicolo',   'Agricola', 'nicagr'),
+  ('FRLRMN90A01L736X', 'Armando',  'Fiorillo', 'arfior'),
+  ('CRSNTN99C20L378W', 'Antonio',  'Caruso',   'antcar');
+
+-- Popolamento Progetto_Coltivazione (ID auto con trigger)
+INSERT INTO Progetto_Coltivazione (stima_raccolto, data_inizio, data_fine)
+VALUES 
+  (1200, '2025-04-01', '2025-07-01'),
+  (800,  '2025-05-01', '2025-08-01');
+
+-- Popolamento Lotto
+INSERT INTO Lotto (metri_quadri, tipo_terreno, posizione, costo_terreno, Codice_FiscalePr)
+VALUES 
+  (500, 'argilloso', 1, 300, 'SGNMRA88A41F205X'),
+  (500, 'sabbioso',  2, 300, 'DMNSRG85T12C351Y');
+
+-- Popolamento Coltura
+INSERT INTO Coltura (varietà, tipo, tempi_maturazione, frequenza_irrigazione, periodo_semina)
+VALUES
+  ('Pomodoro San Marzano', 'Ortaggio', 80, 3, '2025-03-15'),
+  ('Zucchina Chiara',      'Ortaggio', 60, 4, '2025-04-20');
+
+-- Popolamento Attività
+INSERT INTO Attivita (giorno_inizio, giorno_fine, Codice_FiscaleCol, ID_Lotto)
+VALUES
+  ('2025-04-10', '2025-04-12', 'GRCNCL92P10F839Z', 1),
+  ('2025-04-15', '2025-04-20', 'FRLRMN90A01L736X', 2),
+  ('2025-05-01', '2025-05-02', 'CRSNTN99C20L378W', 1);
+
+-- Popolamento Semina
+INSERT INTO Semina (profondita, tipo_semina, ID_Attivita)
+VALUES
+  (10, 'manuale', 1),
+  (10, 'meccanica', 2);
+
+-- Popolamento Irrigazione
+INSERT INTO Irrigazione (tipo_irrigazione, ID_Attivita)
+VALUES
+  ('a goccia', 1),
+  ('a pioggia', 2);
+
+-- Popolamento Raccolta
+INSERT INTO Raccolta (raccolto_effettivo, ID_Attivita)
+VALUES
+  (1100, 1),
+  (700,  2);
+
+-- Popolamento Notifica
+INSERT INTO Notifica (Attivita_programmate, Errori, Anomalie, ID_Attivita)
+VALUES
+  ('Controllare piante', '', '', 1),
+  ('Controllare terreno', '', '', 2);
+
+---------------------POPOLAMENTO TABELLE BASE------------------------------
+
+----------------------TABELLE PONTE-----------------------------------
 CREATE TABLE Invia (
   ID_Notifica INT,
   Codice_FiscalePr VARCHAR(16),
@@ -167,3 +226,304 @@ CREATE TABLE Ospita_Lotto_Progetto (
   FOREIGN KEY (ID_Lotto) REFERENCES Lotto(ID_Lotto),
   FOREIGN KEY (ID_Progetto) REFERENCES Progetto_Coltivazione(ID_Progetto)
 );
+----------------------TABELLE PONTE-----------------------------------
+
+---------------------POPOLAMENTO TABELLE PONTE------------------------------
+
+-- Associazione Notifica → Proprietario
+INSERT INTO Invia (ID_Notifica, Codice_FiscalePr)
+VALUES
+  (1, 'SGNMRA88A41F205X'),
+  (2, 'DMNSRG85T12C351Y');
+
+-- Associazione Lotto → Coltura
+INSERT INTO Ospita (ID_Lotto, ID_Coltura) VALUES
+  (1, 1),
+  (2, 2);
+
+-- Associazione Lotto → Progetto_Coltivazione
+INSERT INTO Ospita_Lotto_Progetto (ID_Lotto, ID_Progetto)
+VALUES
+  (1, 1),
+  (2, 2);
+  
+---------------------POPOLAMENTO TABELLE PONTE------------------------------
+
+
+-------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
+
+CREATE OR REPLACE FUNCTION trg_promuovi_experience()
+  RETURNS trigger AS $$
+DECLARE
+  cnt     INT;
+  old_exp TEXT;
+BEGIN
+  -- Conta tutte le Attivita del coltivatore (inclusa la nuova)
+  SELECT COUNT(*) INTO cnt
+    FROM Attivita
+   WHERE Codice_FiscaleCol = NEW.Codice_FiscaleCol;
+
+  IF cnt % 5 = 0 THEN
+    -- Legge il livello corrente
+    SELECT esperienza INTO old_exp
+      FROM Coltivatore
+     WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+
+    -- Promuove al livello successivo a seconda del livello corrente
+    IF old_exp = 'principiante' THEN
+      UPDATE Coltivatore
+         SET esperienza = 'intermedio'
+       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+    ELSIF old_exp = 'intermedio' THEN
+      UPDATE Coltivatore
+         SET esperienza = 'professionista'
+       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+    END IF;
+  END IF;
+
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+-------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
+
+-------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
+CREATE TRIGGER trg_after_attivita_insert
+  AFTER INSERT ON Attivita
+  FOR EACH ROW
+  EXECUTE FUNCTION trg_promuovi_experience();
+-------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
+
+
+---------------------FUNZIONE id_Progetto_Coltivazione------------------------------
+CREATE OR REPLACE FUNCTION id_Progetto_Coltivazione()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Progetto) INTO ID_var FROM Progetto_Coltivazione;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+     END IF;
+
+   	NEW.ID_Progetto :=ID_var+1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Progetto_Coltivazione------------------------------
+
+---------------------TRIGGER Progetto_Coltivazione------------------------------
+
+CREATE TRIGGER trg_Progetto_Coltivazione_id
+BEFORE INSERT ON Progetto_Coltivazione
+FOR EACH ROW
+EXECUTE FUNCTION id_Progetto_Coltivazione();
+---------------------TRIGGER Progetto_Coltivazione------------------------------
+
+
+---------------------FUNZIONE id_Coltura------------------------------
+CREATE OR REPLACE FUNCTION id_Coltura()
+RETURNS TRIGGER AS $$ 
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Coltura) INTO ID_var FROM Coltura;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Coltura := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Coltura------------------------------
+
+---------------------TRIGGER Coltura------------------------------
+CREATE TRIGGER trg_Coltura_id
+BEFORE INSERT ON Coltura
+FOR EACH ROW
+EXECUTE FUNCTION id_Coltura();
+---------------------TRIGGER Coltura------------------------------
+
+
+---------------------FUNZIONE id_Lotto------------------------------
+CREATE OR REPLACE FUNCTION id_Lotto()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Lotto) INTO ID_var FROM Lotto;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Lotto := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Lotto------------------------------
+
+---------------------TRIGGER Lotto------------------------------
+CREATE TRIGGER trg_Lotto_id
+BEFORE INSERT ON Lotto
+FOR EACH ROW
+EXECUTE FUNCTION id_Lotto();
+---------------------TRIGGER Lotto------------------------------
+
+
+---------------------FUNZIONE id_Attivita------------------------------
+CREATE OR REPLACE FUNCTION id_Attivita()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Attivita) INTO ID_var FROM Attivita;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Attivita := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Attivita------------------------------
+
+---------------------TRIGGER Attivita------------------------------
+CREATE TRIGGER trg_Attivita_id
+BEFORE INSERT ON Attivita
+FOR EACH ROW
+EXECUTE FUNCTION id_Attivita();
+---------------------TRIGGER Attivita------------------------------
+
+
+---------------------FUNZIONE id_Semina------------------------------
+CREATE OR REPLACE FUNCTION id_Semina()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Semina) INTO ID_var FROM Semina;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Semina := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Semina------------------------------
+
+---------------------TRIGGER Semina------------------------------
+CREATE TRIGGER trg_Semina_id
+BEFORE INSERT ON Semina
+FOR EACH ROW
+EXECUTE FUNCTION id_Semina();
+---------------------TRIGGER Semina------------------------------
+
+
+---------------------FUNZIONE id_Irrigazione------------------------------
+CREATE OR REPLACE FUNCTION id_Irrigazione()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Irrigazione) INTO ID_var FROM Irrigazione;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Irrigazione := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Irrigazione------------------------------
+
+---------------------TRIGGER Irrigazione------------------------------
+CREATE TRIGGER trg_Irrigazione_id
+BEFORE INSERT ON Irrigazione
+FOR EACH ROW
+EXECUTE FUNCTION id_Irrigazione();
+---------------------TRIGGER Irrigazione------------------------------
+
+
+---------------------FUNZIONE id_Raccolta------------------------------
+CREATE OR REPLACE FUNCTION id_Raccolta()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Raccolta) INTO ID_var FROM Raccolta;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Raccolta := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Raccolta------------------------------
+
+---------------------TRIGGER Raccolta------------------------------
+CREATE TRIGGER trg_Raccolta_id
+BEFORE INSERT ON Raccolta
+FOR EACH ROW
+EXECUTE FUNCTION id_Raccolta();
+---------------------TRIGGER Raccolta------------------------------
+
+
+---------------------FUNZIONE id_Notifica------------------------------
+CREATE OR REPLACE FUNCTION id_Notifica()
+RETURNS TRIGGER AS $$
+DECLARE
+    ID_var INTEGER;
+    
+BEGIN
+   SELECT MAX(ID_Notifica) INTO ID_var FROM Notifica;
+   
+   IF ID_var IS NULL THEN
+   	ID_var := 0;
+   END IF;
+
+   	NEW.ID_Notifica := ID_var + 1;
+   RETURN NEW;
+
+END;
+
+$$ LANGUAGE plpgsql;
+---------------------FUNZIONE id_Notifica------------------------------
+
+---------------------TRIGGER Notifica------------------------------
+CREATE TRIGGER trg_Notifica_id
+BEFORE INSERT ON Notifica
+FOR EACH ROW
+EXECUTE FUNCTION id_Notifica();
+---------------------TRIGGER Notifica------------------------------
+
+
