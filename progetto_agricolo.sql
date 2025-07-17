@@ -70,9 +70,8 @@ CREATE TABLE Lotto (
 
 CREATE TABLE Attivita (
   ID_Attivita     INT     PRIMARY KEY,
- giorno_assegnazione   DATE    NOT NULL,
-  CONSTRAINT chk_coerenza_date
-    CHECK (giorno_inizio <= giorno_fine),
+ giorno_assegnazione   DATE NOT NULL DEFAULT CURRENT_DATE,
+ 
 
   Codice_FiscaleCol VARCHAR(16),
   ID_Lotto         INT,
@@ -87,6 +86,9 @@ CREATE TABLE Semina (
   ID_Semina    INT       PRIMARY KEY,
   giorno_inizio   DATE    NOT NULL,
   giorno_fine     DATE    NOT NULL,
+ CONSTRAINT chk_coerenza_date
+    CHECK (giorno_inizio <= giorno_fine),
+  
   profondita   NUMERIC   NOT NULL
                 CONSTRAINT chk_profondita_std
                   CHECK (profondita = 10),
@@ -99,6 +101,9 @@ CREATE TABLE Irrigazione (
   ID_Irrigazione   INT        PRIMARY KEY,
   giorno_inizio   DATE    NOT NULL,
   giorno_fine     DATE    NOT NULL,
+ CONSTRAINT chk_coerenza_date
+    CHECK (giorno_inizio <= giorno_fine),
+  
   tipo_irrigazione VARCHAR(50) NOT NULL
     CONSTRAINT chk_tipo_irrigazione
       CHECK (
@@ -117,6 +122,8 @@ CREATE TABLE Raccolta (
   ID_Raccolta    INT    PRIMARY KEY,
   giorno_inizio   DATE    NOT NULL,
   giorno_fine     DATE    NOT NULL,
+   CONSTRAINT chk_coerenza_date
+    CHECK (giorno_inizio <= giorno_fine),
   raccolto_effettivo NUMERIC   NOT NULL
                       CONSTRAINT chk_raccolto_non_negativo
                         CHECK (raccolto_effettivo >= 0),
