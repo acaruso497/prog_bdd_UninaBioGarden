@@ -180,29 +180,32 @@ VALUES
   ('Zucchina Chiara',      'Ortaggio', 60, 4, '2025-04-20');
 
 -- Popolamento Attività
-INSERT INTO Attivita (giorno_inizio, giorno_fine, Codice_FiscaleCol, ID_Lotto)
+INSERT INTO Attivita (ID_Attivita, giorno_assegnazione, Codice_FiscaleCol, ID_Lotto) 
 VALUES
-  ('2025-04-10', '2025-04-12', 'GRCNCL92P10F839Z', 1),
-  ('2025-04-15', '2025-04-20', 'FRLRMN90A01L736X', 2),
-  ('2025-05-01', '2025-05-02', 'CRSNTN99C20L378W', 1);
+  (1, '2023-01-15', 'GRCNCL92P10F839Z', 1),
+  (2, '2023-02-20', 'FRLRMN90A01L736X', 2),
+  (3, '2023-03-10', 'CRSNTN99C20L378W', 1);
 
 -- Popolamento Semina
-INSERT INTO Semina (profondita, tipo_semina, ID_Attivita)
+INSERT INTO Semina (ID_Semina, giorno_inizio, giorno_fine, profondita, tipo_semina, ID_Attivita) 
 VALUES
-  (10, 'manuale', 1),
-  (10, 'meccanica', 2);
+  (1, '2023-01-20', '2023-01-25', 10, 'Diretta', 1),
+  (2, '2023-02-25', '2023-03-02', 10, 'In semenzaio', 2),
+  (3, '2023-03-15', '2023-03-20', 10, 'A spaglio', 3);
 
 -- Popolamento Irrigazione
-INSERT INTO Irrigazione (tipo_irrigazione, ID_Attivita)
+INSERT INTO Irrigazione (ID_Irrigazione, giorno_inizio, giorno_fine, tipo_irrigazione, ID_Attivita) 
 VALUES
-  ('a goccia', 1),
-  ('a pioggia', 2);
+  (1, '2023-01-30', '2023-02-05', 'a goccia', 1),
+  (2, '2023-03-10', '2023-03-15', 'a pioggia', 2),
+  (3, '2023-03-25', '2023-03-30', 'per scorrimento', 3);
 
 -- Popolamento Raccolta
-INSERT INTO Raccolta (raccolto_effettivo, ID_Attivita)
+INSERT INTO Raccolta (ID_Raccolta, giorno_inizio, giorno_fine, raccolto_effettivo, ID_Attivita) 
 VALUES
-  (1100, 1),
-  (700,  2);
+  (1, '2023-06-10', '2023-06-15', 250.50, 1),
+  (2, '2023-07-05', '2023-07-10', 180.75, 2),
+  (3, '2023-08-12', '2023-08-18', 320.00, 3);
 
 -- Popolamento Notifica
 INSERT INTO Notifica (Attivita_programmate, Errori, Anomalie, ID_Attivita)
