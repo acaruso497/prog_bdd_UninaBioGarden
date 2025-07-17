@@ -114,7 +114,7 @@ CREATE TABLE Irrigazione (
 
 
 CREATE TABLE Raccolta (
-  ID_Raccolta        SERIAL PRIMARY KEY,
+  ID_Raccolta    INT    PRIMARY KEY,
   giorno_inizio   DATE    NOT NULL,
   giorno_fine     DATE    NOT NULL,
   raccolto_effettivo NUMERIC   NOT NULL
