@@ -73,7 +73,7 @@ CREATE TABLE Attivita (
  giorno_assegnazione   DATE NOT NULL DEFAULT CURRENT_DATE,
  CHECK (giorno_assegnazione = CURRENT_DATE),
   Codice_FiscaleCol VARCHAR(16),
-  ID_Lotto         INT,
+  ID_Lotto         INT NOT NULL,
 
   FOREIGN KEY (Codice_FiscaleCol)
     REFERENCES Coltivatore(Codice_Fiscale),
@@ -92,7 +92,7 @@ CREATE TABLE Semina (
                 CONSTRAINT chk_profondita_std
                   CHECK (profondita = 10),
   tipo_semina  VARCHAR(50),
-  ID_Attivita  INT       NOT NULL,
+  ID_Attivita  INT   NOT NULL,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
 
@@ -126,7 +126,7 @@ CREATE TABLE Raccolta (
   raccolto_effettivo NUMERIC   NOT NULL
                       CONSTRAINT chk_raccolto_non_negativo
                         CHECK (raccolto_effettivo >= 0),
-  ID_Attivita        INT       NOT NULL,
+  ID_Attivita        INT  NOT NULL,
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
 
@@ -146,165 +146,6 @@ CREATE TABLE Notifica (
   FOREIGN KEY (ID_Attivita) REFERENCES Attivita(ID_Attivita)
 );
 ---------------TABELLE BASE------------------
-
----------------------POPOLAMENTO TABELLE BASE------------------------------
-
--- Popolamento Proprietario
-INSERT INTO Proprietario (Codice_Fiscale, nome, cognome, username) VALUES 
-  ('SGNMRA88A41F205X', 'Mara',    'Sangiovanni', 'marsan'),
-  ('DMNSRG85T12C351Y', 'Sergio',  'Di Martino',  'serdim');
-
--- Popolamento Coltivatore (esperienza = default 'principiante')
-INSERT INTO Coltivatore (Codice_Fiscale, nome, cognome, username) VALUES
-  ('GRCNCL92P10F839Z', 'Nicolo',   'Agricola', 'nicagr'),
-  ('FRLRMN90A01L736X', 'Armando',  'Fiorillo', 'arfior'),
-  ('CRSNTN99C20L378W', 'Antonio',  'Caruso',   'antcar');
-
--- Popolamento Progetto_Coltivazione 
-INSERT INTO Progetto_Coltivazione (stima_raccolto, data_inizio, data_fine)
-VALUES 
-  (1200, '2025-04-01', '2025-07-01'),
-  (800,  '2025-05-01', '2025-08-01');
-
--- Popolamento Lotto
-INSERT INTO Lotto (metri_quadri, tipo_terreno, posizione, costo_terreno, Codice_FiscalePr)
-VALUES 
-  (500, 'argilloso', 1, 300, 'SGNMRA88A41F205X'),
-  (500, 'sabbioso',  2, 300, 'DMNSRG85T12C351Y');
-
--- Popolamento Coltura
-INSERT INTO Coltura (varietà, tipo, tempi_maturazione, frequenza_irrigazione, periodo_semina)
-VALUES
-  ('Pomodoro San Marzano', 'Ortaggio', 80, 3, '2025-03-15'),
-  ('Zucchina Chiara',      'Ortaggio', 60, 4, '2025-04-20');
-
--- Popolamento Attività
-INSERT INTO Attivita (ID_Attivita, giorno_assegnazione, Codice_FiscaleCol, ID_Lotto) 
-VALUES
-  (1, '2023-01-15', 'GRCNCL92P10F839Z', 1),
-  (2, '2023-02-20', 'FRLRMN90A01L736X', 2),
-  (3, '2023-03-10', 'CRSNTN99C20L378W', 1);
-
--- Popolamento Semina
-INSERT INTO Semina (ID_Semina, giorno_inizio, giorno_fine, profondita, tipo_semina, ID_Attivita) 
-VALUES
-  (1, '2023-01-20', '2023-01-25', 10, 'Diretta', 1),
-  (2, '2023-02-25', '2023-03-02', 10, 'In semenzaio', 2),
-  (3, '2023-03-15', '2023-03-20', 10, 'A spaglio', 3);
-
--- Popolamento Irrigazione
-INSERT INTO Irrigazione (ID_Irrigazione, giorno_inizio, giorno_fine, tipo_irrigazione, ID_Attivita) 
-VALUES
-  (1, '2023-01-30', '2023-02-05', 'a goccia', 1),
-  (2, '2023-03-10', '2023-03-15', 'a pioggia', 2),
-  (3, '2023-03-25', '2023-03-30', 'per scorrimento', 3);
-
--- Popolamento Raccolta
-INSERT INTO Raccolta (ID_Raccolta, giorno_inizio, giorno_fine, raccolto_effettivo, ID_Attivita) 
-VALUES
-  (1, '2023-06-10', '2023-06-15', 250.50, 1),
-  (2, '2023-07-05', '2023-07-10', 180.75, 2),
-  (3, '2023-08-12', '2023-08-18', 320.00, 3);
-
--- Popolamento Notifica
-INSERT INTO Notifica (Attivita_programmate, Errori, Anomalie, ID_Attivita)
-VALUES
-  ('Controllare piante', '', '', 1),
-  ('Controllare terreno', '', '', 2);
-
----------------------POPOLAMENTO TABELLE BASE------------------------------
-
-----------------------TABELLE PONTE-----------------------------------
-CREATE TABLE Invia (
-  ID_Notifica INT,
-  Codice_FiscalePr VARCHAR(16),
-  PRIMARY KEY (ID_Notifica, Codice_FiscalePr),
-  FOREIGN KEY (ID_Notifica) REFERENCES Notifica(ID_Notifica),
-  FOREIGN KEY (Codice_FiscalePr) REFERENCES Proprietario(Codice_Fiscale)
-);
-
-CREATE TABLE Ospita (
-  ID_Lotto INT,
-  ID_Coltura INT,
-  PRIMARY KEY (ID_Lotto, ID_Coltura),
-  FOREIGN KEY (ID_Lotto) REFERENCES Lotto(ID_Lotto),
-  FOREIGN KEY (ID_Coltura) REFERENCES Coltura(ID_Coltura)
-);
-
-CREATE TABLE Ospita_Lotto_Progetto (
-  ID_Lotto INT,
-  ID_Progetto INT,
-  PRIMARY KEY (ID_Lotto, ID_Progetto),
-  FOREIGN KEY (ID_Lotto) REFERENCES Lotto(ID_Lotto),
-  FOREIGN KEY (ID_Progetto) REFERENCES Progetto_Coltivazione(ID_Progetto)
-);
-----------------------TABELLE PONTE-----------------------------------
-
----------------------POPOLAMENTO TABELLE PONTE------------------------------
-
--- Associazione Notifica → Proprietario
-INSERT INTO Invia (ID_Notifica, Codice_FiscalePr)
-VALUES
-  (1, 'SGNMRA88A41F205X'),
-  (2, 'DMNSRG85T12C351Y');
-
--- Associazione Lotto → Coltura
-INSERT INTO Ospita (ID_Lotto, ID_Coltura) VALUES
-  (1, 1),
-  (2, 2);
-
--- Associazione Lotto → Progetto_Coltivazione
-INSERT INTO Ospita_Lotto_Progetto (ID_Lotto, ID_Progetto)
-VALUES
-  (1, 1),
-  (2, 2);
-  
----------------------POPOLAMENTO TABELLE PONTE------------------------------
-
-
--------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
-
-CREATE OR REPLACE FUNCTION trg_promuovi_experience()
-  RETURNS trigger AS $$
-DECLARE
-  cnt     INT;
-  old_exp TEXT;
-BEGIN
-  -- Conta tutte le Attivita del coltivatore (inclusa la nuova)
-  SELECT COUNT(*) INTO cnt
-    FROM Attivita
-   WHERE Codice_FiscaleCol = NEW.Codice_FiscaleCol;
-
-  IF cnt % 5 = 0 THEN
-    -- Legge il livello corrente
-    SELECT esperienza INTO old_exp
-      FROM Coltivatore
-     WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
-
-    -- Promuove al livello successivo a seconda del livello corrente
-    IF old_exp = 'principiante' THEN
-      UPDATE Coltivatore
-         SET esperienza = 'intermedio'
-       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
-    ELSIF old_exp = 'intermedio' THEN
-      UPDATE Coltivatore
-         SET esperienza = 'professionista'
-       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
-    END IF;
-  END IF;
-
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
--------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
-
--------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
-CREATE TRIGGER trg_after_attivita_insert
-  AFTER INSERT ON Attivita
-  FOR EACH ROW
-  EXECUTE FUNCTION trg_promuovi_experience();
--------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
-
 
 ---------------------FUNZIONE id_Progetto_Coltivazione------------------------------
 CREATE OR REPLACE FUNCTION id_Progetto_Coltivazione()
@@ -334,7 +175,6 @@ BEFORE INSERT ON Progetto_Coltivazione
 FOR EACH ROW
 EXECUTE FUNCTION id_Progetto_Coltivazione();
 ---------------------TRIGGER Progetto_Coltivazione------------------------------
-
 
 ---------------------FUNZIONE id_Coltura------------------------------
 CREATE OR REPLACE FUNCTION id_Coltura()
@@ -538,4 +378,159 @@ FOR EACH ROW
 EXECUTE FUNCTION id_Notifica();
 ---------------------TRIGGER Notifica------------------------------
 
+-------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
 
+CREATE OR REPLACE FUNCTION trg_promuovi_experience()
+  RETURNS trigger AS $$
+DECLARE
+  cnt     INT;
+  old_exp TEXT;
+BEGIN
+  -- Conta tutte le Attivita del coltivatore (inclusa la nuova)
+  SELECT COUNT(*) INTO cnt
+    FROM Attivita
+   WHERE Codice_FiscaleCol = NEW.Codice_FiscaleCol;
+
+  IF cnt % 5 = 0 THEN
+    -- Legge il livello corrente
+    SELECT esperienza INTO old_exp
+      FROM Coltivatore
+     WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+
+    -- Promuove al livello successivo a seconda del livello corrente
+    IF old_exp = 'principiante' THEN
+      UPDATE Coltivatore
+         SET esperienza = 'intermedio'
+       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+    ELSIF old_exp = 'intermedio' THEN
+      UPDATE Coltivatore
+         SET esperienza = 'professionista'
+       WHERE Codice_Fiscale = NEW.Codice_FiscaleCol;
+    END IF;
+  END IF;
+
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+-------------FUNZIONE ESPERIENZA DEL COLTIVATORE----------------------
+
+-------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
+CREATE TRIGGER trg_after_attivita_insert
+  AFTER INSERT ON Attivita
+  FOR EACH ROW
+  EXECUTE FUNCTION trg_promuovi_experience();
+-------------TRIGGER ESPERIENZA DEL COLTIVATORE-----------------------
+
+
+---------------------POPOLAMENTO TABELLE BASE------------------------------
+
+-- Popolamento Proprietario
+INSERT INTO Proprietario (Codice_Fiscale, nome, cognome, username) VALUES 
+  ('SGNMRA88A41F205X', 'Mara',    'Sangiovanni', 'marsan'),
+  ('DMNSRG85T12C351Y', 'Sergio',  'Di Martino',  'serdim');
+
+-- Popolamento Coltivatore (esperienza = default 'principiante')
+INSERT INTO Coltivatore (Codice_Fiscale, nome, cognome, username) VALUES
+  ('GRCNCL92P10F839Z', 'Nicolo',   'Agricola', 'nicagr'),
+  ('FRLRMN90A01L736X', 'Armando',  'Fiorillo', 'arfior'),
+  ('CRSNTN99C20L378W', 'Antonio',  'Caruso',   'antcar');
+
+-- Popolamento Progetto_Coltivazione 
+INSERT INTO Progetto_Coltivazione (stima_raccolto, data_inizio, data_fine)
+VALUES 
+  (1200, '2025-04-01', '2025-07-01'),
+  (800,  '2025-05-01', '2025-08-01');
+
+-- Popolamento Lotto
+INSERT INTO Lotto (metri_quadri, tipo_terreno, posizione, costo_terreno, Codice_FiscalePr) 
+VALUES
+  (500, 'argilloso', 1, 300, 'SGNMRA88A41F205X'),
+  (500, 'sabbioso', 2, 300, 'DMNSRG85T12C351Y');
+
+-- Popolamento Coltura
+INSERT INTO Coltura (varietà, tipo, tempi_maturazione, frequenza_irrigazione, periodo_semina)
+VALUES
+  ('Pomodoro San Marzano', 'Ortaggio', 80, 3, '2025-03-15'),
+  ('Zucchina Chiara',      'Ortaggio', 60, 4, '2025-04-20');
+
+-- Popolamento Attività
+INSERT INTO Attivita (Codice_FiscaleCol, ID_Lotto) VALUES
+  ('GRCNCL92P10F839Z', 1),
+  ('FRLRMN90A01L736X', 2),
+  ('CRSNTN99C20L378W', 1);
+  
+-- Popolamento Semina
+INSERT INTO Semina (giorno_inizio, giorno_fine, profondita, tipo_semina, ID_Attivita) 
+VALUES
+  ('2023-01-20', '2023-01-25', 10, 'Diretta', 1),
+  ('2023-02-25', '2023-03-02', 10, 'In semenzaio', 2),
+  ('2023-03-15', '2023-03-20', 10, 'A spaglio', 3);
+
+-- Popolamento Irrigazione
+INSERT INTO Irrigazione (giorno_inizio, giorno_fine, tipo_irrigazione, ID_Attivita) 
+VALUES
+  ('2023-01-30', '2023-02-05', 'a goccia', 1),
+  ('2023-03-10', '2023-03-15', 'a pioggia', 2),
+  ('2023-03-25', '2023-03-30', 'per scorrimento', 3);
+  
+-- Popolamento Raccolta
+INSERT INTO Raccolta (giorno_inizio, giorno_fine, raccolto_effettivo, ID_Attivita) 
+VALUES
+  ('2023-06-10', '2023-06-15', 250.50, 1),
+  ('2023-07-05', '2023-07-10', 180.75, 2),
+  ('2023-08-12', '2023-08-18', 320.00, 3);
+
+-- Popolamento Notifica
+INSERT INTO Notifica (Attivita_programmate, Errori, Anomalie, ID_Attivita)
+VALUES
+  ('Controllare piante', '', '', 1),
+  ('Controllare terreno', '', '', 2);
+
+---------------------POPOLAMENTO TABELLE BASE------------------------------
+
+----------------------TABELLE PONTE-----------------------------------
+CREATE TABLE Invia (
+  ID_Notifica INT,
+  Codice_FiscalePr VARCHAR(16),
+  PRIMARY KEY (ID_Notifica, Codice_FiscalePr),
+  FOREIGN KEY (ID_Notifica) REFERENCES Notifica(ID_Notifica),
+  FOREIGN KEY (Codice_FiscalePr) REFERENCES Proprietario(Codice_Fiscale)
+);
+
+CREATE TABLE Ospita (
+  ID_Lotto INT,
+  ID_Coltura INT,
+  PRIMARY KEY (ID_Lotto, ID_Coltura),
+  FOREIGN KEY (ID_Lotto) REFERENCES Lotto(ID_Lotto),
+  FOREIGN KEY (ID_Coltura) REFERENCES Coltura(ID_Coltura)
+);
+
+CREATE TABLE Ospita_Lotto_Progetto (
+  ID_Lotto INT,
+  ID_Progetto INT,
+  PRIMARY KEY (ID_Lotto, ID_Progetto),
+  FOREIGN KEY (ID_Lotto) REFERENCES Lotto(ID_Lotto),
+  FOREIGN KEY (ID_Progetto) REFERENCES Progetto_Coltivazione(ID_Progetto)
+);
+----------------------TABELLE PONTE-----------------------------------
+
+---------------------POPOLAMENTO TABELLE PONTE------------------------------
+
+-- Associazione Notifica → Proprietario
+INSERT INTO Invia (ID_Notifica, Codice_FiscalePr)
+VALUES
+  (1, 'SGNMRA88A41F205X'),
+  (2, 'DMNSRG85T12C351Y');
+
+-- Associazione Lotto → Coltura
+INSERT INTO Ospita (ID_Lotto, ID_Coltura) VALUES
+  (1, 1),
+  (2, 2);
+
+-- Associazione Lotto → Progetto_Coltivazione
+INSERT INTO Ospita_Lotto_Progetto (ID_Lotto, ID_Progetto)
+VALUES
+  (1, 1),
+  (2, 2);
+  
+---------------------POPOLAMENTO TABELLE PONTE------------------------------
