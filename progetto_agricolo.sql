@@ -71,8 +71,7 @@ CREATE TABLE Lotto (
 CREATE TABLE Attivita (
   ID_Attivita     INT     PRIMARY KEY,
  giorno_assegnazione   DATE NOT NULL DEFAULT CURRENT_DATE,
- 
-
+ CHECK (giorno_assegnazione = CURRENT_DATE),
   Codice_FiscaleCol VARCHAR(16),
   ID_Lotto         INT,
 
