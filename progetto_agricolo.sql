@@ -4,6 +4,7 @@ CREATE TABLE Proprietario (
   nome     VARCHAR(50)  NOT NULL,
   cognome  VARCHAR(50)  NOT NULL,
   username VARCHAR(100) NOT NULL UNIQUE,
+  psw      VARCHAR(100) NOT NULL
   CONSTRAINT chk_valori_distinti
     CHECK (
       nome    <> cognome
@@ -425,15 +426,15 @@ CREATE TRIGGER trg_after_attivita_insert
 ---------------------POPOLAMENTO TABELLE BASE------------------------------
 
 -- Popolamento Proprietario
-INSERT INTO Proprietario (Codice_Fiscale, nome, cognome, username) VALUES 
-  ('SGNMRA88A41F205X', 'Mara',    'Sangiovanni', 'marsan'),
-  ('DMNSRG85T12C351Y', 'Sergio',  'Di Martino',  'serdim');
+INSERT INTO Proprietario (Codice_Fiscale, nome, cognome, username, psw) VALUES 
+  ('SGNMRA88A41F205X', 'Mara',    'Sangiovanni', 'marsan','MaraSNG'),
+  ('DMNSRG85T12C351Y', 'Sergio',  'Di Martino',  'serdim','SergioDM');
 
 -- Popolamento Coltivatore (esperienza = default 'principiante')
-INSERT INTO Coltivatore (Codice_Fiscale, nome, cognome, username) VALUES
-  ('GRCNCL92P10F839Z', 'Nicolo',   'Agricola', 'nicagr'),
-  ('FRLRMN90A01L736X', 'Armando',  'Fiorillo', 'arfior'),
-  ('CRSNTN99C20L378W', 'Antonio',  'Caruso',   'antcar');
+INSERT INTO Coltivatore (Codice_Fiscale, nome, cognome, username, psw ) VALUES
+  ('GRCNCL92P10F839Z', 'Nicolo',   'Agricola', 'nicagr','Nico'),
+  ('FRLRMN90A01L736X', 'Armando',  'Fiorillo', 'arfior','Arma'),
+  ('CRSNTN99C20L378W', 'Antonio',  'Caruso',   'antcar','Anto' );
 
 -- Popolamento Progetto_Coltivazione 
 INSERT INTO Progetto_Coltivazione (stima_raccolto, data_inizio, data_fine)
