@@ -24,6 +24,7 @@ CREATE TABLE Coltivatore (
       'intermedio',
       'professionista'
     )),
+	psw      VARCHAR(100) NOT NULL,
   CONSTRAINT chk_valori_distinti_coltivatore
     CHECK (
       nome    <> cognome
