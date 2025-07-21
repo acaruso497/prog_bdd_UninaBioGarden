@@ -427,12 +427,14 @@ CREATE TRIGGER trg_after_attivita_insert
 ---------------------POPOLAMENTO TABELLE BASE------------------------------
 
 -- Popolamento Proprietario
-INSERT INTO Proprietario (Codice_Fiscale, nome, cognome, username, psw) VALUES 
+INSERT INTO Proprietario (Codice_Fiscale, nome, cognome, username, psw) 
+VALUES 
   ('SGNMRA88A41F205X', 'Mara',    'Sangiovanni', 'marsan','MaraSNG'),
   ('DMNSRG85T12C351Y', 'Sergio',  'Di Martino',  'serdim','SergioDM');
 
 -- Popolamento Coltivatore (esperienza = default 'principiante')
-INSERT INTO Coltivatore (Codice_Fiscale, nome, cognome, username, psw ) VALUES
+INSERT INTO Coltivatore (Codice_Fiscale, nome, cognome, username, psw ) 
+VALUES
   ('GRCNCL92P10F839Z', 'Nicolo',   'Agricola', 'nicagr','Nico'),
   ('FRLRMN90A01L736X', 'Armando',  'Fiorillo', 'arfior','Arma'),
   ('CRSNTN99C20L378W', 'Antonio',  'Caruso',   'antcar','Anto' );
@@ -456,7 +458,8 @@ VALUES
   ('Zucchina Chiara',      'Ortaggio', 60, 4, '2025-04-20');
 
 -- Popolamento Attività
-INSERT INTO Attivita (Codice_FiscaleCol, ID_Lotto) VALUES
+INSERT INTO Attivita (Codice_FiscaleCol, ID_Lotto) 
+VALUES
   ('GRCNCL92P10F839Z', 1),
   ('FRLRMN90A01L736X', 2),
   ('CRSNTN99C20L378W', 1);
@@ -499,7 +502,7 @@ CREATE TABLE Invia (
   FOREIGN KEY (Codice_FiscalePr) REFERENCES Proprietario(Codice_Fiscale)
 );
 
-CREATE TABLE Ospita (
+CREATE TABLE Contiene (
   ID_Lotto INT,
   ID_Coltura INT,
   PRIMARY KEY (ID_Lotto, ID_Coltura),
@@ -525,7 +528,8 @@ VALUES
   (2, 'DMNSRG85T12C351Y');
 
 -- Associazione Lotto → Coltura
-INSERT INTO Ospita (ID_Lotto, ID_Coltura) VALUES
+INSERT INTO Contiene (ID_Lotto, ID_Coltura) 
+VALUES
   (1, 1),
   (2, 2);
 
